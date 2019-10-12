@@ -106,7 +106,8 @@ class Game {
   }
 
   getNearestEnemy(char) {
-    let enemies = shuffle(this.chars.filter(c => c.owner !== char.owner));
+    // let enemies = shuffle(this.chars.filter(c => c.owner !== char.owner));
+    let enemies = shuffle(this.chars.filter(c => c.owner === opponent));
     let sorted = enemies.map((c) => {
       return {
         dist: dist(c.pos, char.pos),
@@ -197,7 +198,7 @@ class Game {
     this.emit('turn', {turn: this.turn});
   }
 
-  async move(pid, cid) {
+  move(pid, cid) {
     let player = this.getPlayer(pid);
     if(this.turn % this.players.length !== player.index) {
       return;
@@ -241,7 +242,7 @@ class Game {
     char.dir = direction.dir;
     this.emit('new-pos', {char, moves});
 
-    await sleep(1 + moves.length / 2);
+    // await sleep(1 + moves.length / 2);
 
     // find the nearest opp
     let enemy = this.getNearestEnemy(char);
@@ -249,6 +250,7 @@ class Game {
     // attack
     let fromBack = isFromBack(char.pos, enemy.pos, enemy.dir);
     let damage = 3 * dist(char.pos, enemy.pos) * (fromBack ? 3 : 1);
+    return damage;
 
     enemy.hp = Math.max(enemy.hp - damage, 0);
 
@@ -262,7 +264,7 @@ class Game {
 
     if(enemy.hp === 0) {
       //console.log('die', enemy.id, enemy.hp);
-      await sleep(1);
+      // await sleep(1);
       this.chars = this.chars.filter(c => c.id !== enemy.id);
       this.emit('die', {enemy});
 
@@ -276,7 +278,7 @@ class Game {
       }
     }
 
-    await sleep(1);
+    // await sleep(1);
     this._moving = false;
     this.emit('turn', {turn: this.turn});
 
